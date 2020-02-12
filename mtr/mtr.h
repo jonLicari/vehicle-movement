@@ -19,8 +19,12 @@
   const int im = A3; // Object detect port
   
   // Motor PWM pin declaration
-  const int m1 = 9; // L motor
-  const int m3 = 11; // R motor
+  const int ml = 3; // L motor
+  const int lfwd = 2; 
+  const int lbwd = 4; 
+  const int mr = 6; // R motor
+  const int rfwd = 7;
+  const int rbwd = 8;
 
   // Analog variables
   int joy_x = 0;
