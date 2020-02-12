@@ -17,6 +17,20 @@ void setup() {
   pinMode(md, INPUT);
   pinMode(im, INPUT);
 
+  // Motor Port Initialization
+  pinMode(ml, OUTPUT);
+  pinMode(lfwd, OUTPUT);
+  pinMode(lbwd, OUTPUT);
+  pinMode(mr, OUTPUT);
+  pinMode(rfwd, OUTPUT);
+  pinMode(rbwd, OUTPUT);
+
+  // Motor Signal Initialization
+  digitalWrite(lfwd, HIGH);
+  digitalWrite(lbwd, LOW);
+  digitalWrite(rfwd, HIGH);
+  digitalWrite(rfwd, LOW);
+  
   // Tx initialization
   vw_set_tx_pin(tx); // Set transmit pin
   vw_setup(2000); // Bits per second
@@ -126,18 +140,18 @@ void drive() {                       //PWM output
   // Joystick input
   if (joy_x < 120) {                    // Left turn
     if ((128 - joy_y) < 0)
-      analogWrite(m1, 0);
+      analogWrite(ml, 0);
     else  
-      analogWrite(m1, (128 - joy_y));   // L motor decreases speed
-    analogWrite(m3, (256 - joy_y));     // R motor increases speed
+      analogWrite(ml, (128 - joy_y));   // L motor decreases speed
+    analogWrite(mr, (256 - joy_y));     // R motor increases speed
   }
   else if (joy_x > 136) {               // Right turn
-    analogWrite(m1, joy_y);             // L motor increases speed
-    analogWrite(m3, (255 - joy_y));     // R motor decreases speed
+    analogWrite(ml, joy_y);             // L motor increases speed
+    analogWrite(mr, (255 - joy_y));     // R motor decreases speed
   }
   else {                                // Forward, rest position  
-    analogWrite(m1, joy_y);       
-    analogWrite(m3, joy_y);       
+    analogWrite(ml, joy_y);       
+    analogWrite(mr, joy_y);       
   }
   
   delay(5);
@@ -148,16 +162,16 @@ void slow() {
    * img is detected AND within 30cm? 
    */
    if (joy_x > 136) {     // Right Turn
-    analogWrite(m1, 75);  // L motor increases speed
-    analogWrite(m3, 25);  // R motor decreases speed
+    analogWrite(ml, 75);  // L motor increases speed
+    analogWrite(mr, 25);  // R motor decreases speed
    }
    else if (joy_x < 120) {// Left Turn
-    analogWrite(m1, 25);  // L motor decreases speed
-    analogWrite(m3, 75);  // R motor increases speed
+    analogWrite(ml, 25);  // L motor decreases speed
+    analogWrite(mr, 75);  // R motor increases speed
    }
    else { // Forward movement
-    analogWrite(m1, 75);
-    analogWrite(m3, 75);
+    analogWrite(ml, 75);
+    analogWrite(mr, 75);
    }
 
    delay(5);
@@ -168,8 +182,8 @@ void scan() {
    *  camera is actively scanning for object 
    *  once object is detected, jump to drive state
    */
-   //analogWrite(m1, 140);
-  // analogWrite(m3, 100);
+   //analogWrite(ml, 140);
+  // analogWrite(mr, 100);
    //delay(2000);
   // if img == false
    // scan();
@@ -178,8 +192,8 @@ void scan() {
 void one() {  // 1:1 Control 
   
   // Send PWM output
-  analogWrite(m3, joy_x);      // X dir. controls mtr R
-  analogWrite(m1, joy_y);      // Y dir. controls mtr L 
+  analogWrite(mr, joy_x);      // X dir. controls mtr R
+  analogWrite(ml, joy_y);      // Y dir. controls mtr L 
 }
 
 void rdVolt() { // Print values to serial monitor
