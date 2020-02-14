@@ -5,11 +5,12 @@
  */
 
 #include <VirtualWire.h>
+#include <Scheduler.h>
 #include "mtr.h"
 
 void setup() {
   
-  mode = 0; // Initialize mode to 0 - Idle
+  state = 3; // Initialize mode to 0 - Idle, 3 -demo
   
   // Port Initialization
   pinMode(jx, INPUT);
@@ -35,6 +36,9 @@ void setup() {
   vw_set_tx_pin(tx); // Set transmit pin
   vw_setup(2000); // Bits per second
   pinMode(tx_led, OUTPUT);
+
+  // Interrupt 
+  attachInterrupt(digitalPinToInterrupt(im), detect, CHANGE);
 
   // Initialize Serial monitor
   Serial.begin(9600);
@@ -76,37 +80,33 @@ void loop() {
   switch (state) {
      case 0:
       idle();
-      //Serial.println("Enter Idle State");
+      Serial.println("Enter Idle State");
       break;
 
      case 1:
       drive();
-      //Serial.println("Enter Drive State");
+      Serial.println("Enter Drive State");
       break;
 
      case 2:
       slow();
-      // Serial.println("Enter Precision Movement State");
+      Serial.println("Enter Precision Movement State");
       break;
       
      case 3:
-      one();
-      // Serial.println("Enter 1:1 State");
-      break;
-/*
-     case 4:
       demo();
-      // Serial.println("Enter Autonomous State");
-      break;  */ 
+      Serial.println("Enter Autonomous State");
+      break;   
   }
 
   // Prints the motor speed to the Serial Monitor
   mtrSpeed(); 
 
   //send_data(); // test serial connect before wireless
-  
-  // Delay to complete computation
-  // delay(5);
+}
+
+void detect() {
+  img = !img;
 }
 
 void send_data() {
@@ -177,23 +177,38 @@ void slow() {
    delay(5);
 }
 
-void scan() {
+void demo() {
   /* Scan state has the vehicle turn in a slow 360 
    *  camera is actively scanning for object 
    *  once object is detected, jump to drive state
+   *  slow once in range of object
+   *  stop in range of claw
+   *  
    */
-   //analogWrite(ml, 140);
-  // analogWrite(mr, 100);
-   //delay(2000);
-  // if img == false
-   // scan();
-   //else
-}
-void one() {  // 1:1 Control 
-  
-  // Send PWM output
-  analogWrite(mr, joy_x);      // X dir. controls mtr R
-  analogWrite(ml, joy_y);      // Y dir. controls mtr L 
+  int spd = 0;
+   
+  if (img == false) {     // object not detected
+    analogWrite(ml, 140);
+    analogWrite(mr, 50);
+    tot_time = 0;    
+  }
+  else {
+    if () { // Distance > 20cm from object
+      spd = 200;
+      analogWrite(ml, spd);
+      analogWrite(mr, spd);
+    }
+    else if () { // Slow: 20cm > Distance > 7cm
+      spd = 50;
+      analogWrite(ml, spd);
+      analogWrite(mr, spd);
+    }
+    else { // Stop: Distance <= 7cm
+      analogWrite(ml, 0);
+      analogWrite(mr, 0);
+      grab(); // Control Servo to grab object
+    }
+  }
 }
 
 void rdVolt() { // Print values to serial monitor
