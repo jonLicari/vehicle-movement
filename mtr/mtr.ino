@@ -12,11 +12,13 @@ void setup() {
   
   state = 3; // Initialize mode to 0 - Idle, 3 -demo
   
-  // Port Initialization
+  // Sensor Port Initialization
   pinMode(jx, INPUT);
   pinMode(jy, INPUT);
   pinMode(md, INPUT);
-  pinMode(im, INPUT);
+  pinMode(im, INPUT_PULLUP);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
 
   // Motor Port Initialization
   pinMode(ml, OUTPUT);
@@ -47,7 +49,7 @@ void setup() {
 void loop() {
 
   // Read in state variable
-  mode = analogRead(md);
+  mode = digitalRead(md);
 
   // Only run state check if there has been a change in ANALOG voltage
   // This only works if the ANALOG signal is consistent and steady
@@ -131,12 +133,9 @@ void idle() {                         // Do-nothing state
    * Control input does not affect the motor speed
    */
   delay(5000);
-
-  // scan(); move to autonomous state
 }
 
 void drive() {                       //PWM output
-
   // Joystick input
   if (joy_x < 120) {                    // Left turn
     if ((128 - joy_y) < 0)
@@ -159,7 +158,7 @@ void drive() {                       //PWM output
 
 void slow() {
   /* Precision Movement State is activated when 
-   * img is detected AND within 30cm? 
+   * img is detected AND within 20cm 
    */
    if (joy_x > 136) {     // Right Turn
     analogWrite(ml, 75);  // L motor increases speed
@@ -173,8 +172,6 @@ void slow() {
     analogWrite(ml, 75);
     analogWrite(mr, 75);
    }
-
-   delay(5);
 }
 
 void demo() {
@@ -185,7 +182,7 @@ void demo() {
    *  stop in range of claw
    *  
    */
-  int spd = 0;
+  int spd, d;
    
   if (img == false) {     // object not detected
     analogWrite(ml, 140);
@@ -193,12 +190,13 @@ void demo() {
     tot_time = 0;    
   }
   else {
-    if () { // Distance > 20cm from object
+    d = measure();
+    if (d > 20) { // Distance > 20cm from object
       spd = 200;
       analogWrite(ml, spd);
       analogWrite(mr, spd);
     }
-    else if () { // Slow: 20cm > Distance > 7cm
+    else if (d > 8 && d < 20) { // Slow: 20cm > Distance > 8cm
       spd = 50;
       analogWrite(ml, spd);
       analogWrite(mr, spd);
@@ -209,6 +207,31 @@ void demo() {
       grab(); // Control Servo to grab object
     }
   }
+}
+
+int measure() {
+  int i;
+  for (i = 0; i < 2; i++) {
+    // Clears the trig
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    dur = pulseIn(echoPin, HIGH);
+
+    // Calculating the distance
+    dist += dur*0.034/2;
+  }
+  dist = dist/i;
+  Serial.println("Distance: ");
+  Serial.print(dist);
+
+  return(dist); 
 }
 
 void rdVolt() { // Print values to serial monitor
