@@ -5,7 +5,6 @@
  */
 
 #include <VirtualWire.h>
-#include <Scheduler.h>
 #include "mtr.h"
 
 void setup() {
@@ -43,18 +42,18 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(im), detect, CHANGE);
 
   // Initialize Serial monitor
-  Serial.begin(9600);
+  Serial.begin(250000);
 }
 
 void loop() {
+  state = 3;
 
   // Read in state variable
-  mode = digitalRead(md);
+  mode = analogRead(md);
 
   // Only run state check if there has been a change in ANALOG voltage
   // This only works if the ANALOG signal is consistent and steady
   if (mode != old && mode != 0) { 
-        
     // Determine state based on the analog voltage
     if (mode >= exp0*0.995 && mode <= exp0*1.005)
       state = 0;
@@ -72,7 +71,7 @@ void loop() {
   joy_x = analogRead(jx);
   joy_y = analogRead(jy);
   
-  rdVolt(); // Print the controls' analog voltage to the Serial monitor
+  //rdVolt(); // Print the controls' analog voltage to the Serial monitor
 
   // Map the 10-bit ADC digital signal to an 8-bit digital signal for the DAC
   joy_x = map(joy_x, 0, 1023, 0, 255);
@@ -81,34 +80,37 @@ void loop() {
   // Switch case for flight mode selection
   switch (state) {
      case 0:
-      idle();
       Serial.println("Enter Idle State");
+      idle();
       break;
 
      case 1:
-      drive();
       Serial.println("Enter Drive State");
+      drive();
       break;
 
      case 2:
-      slow();
       Serial.println("Enter Precision Movement State");
+      slow();
       break;
       
      case 3:
-      demo();
       Serial.println("Enter Autonomous State");
-      break;   
+      demo();
+      break;         
   }
-
+  
   // Prints the motor speed to the Serial Monitor
-  mtrSpeed(); 
+  //mtrSpeed(); 
 
   //send_data(); // test serial connect before wireless
+  delay(1000);
 }
 
 void detect() {
   img = !img;
+  //Serial.println("ISR");  
+  //detachInterrupt(digitalPinToInterrupt(im));
 }
 
 void send_data() {
@@ -185,12 +187,19 @@ void demo() {
   int spd, d;
    
   if (img == false) {     // object not detected
+    Serial.println("false loop ");
+    Serial.print(img);
+
     analogWrite(ml, 140);
     analogWrite(mr, 50);
     tot_time = 0;    
   }
   else {
+    Serial.println("true loop ");
+    Serial.print(img);
     d = measure();
+    Serial.println("d = ");
+    Serial.println(d);
     if (d > 20) { // Distance > 20cm from object
       spd = 200;
       analogWrite(ml, spd);
@@ -204,7 +213,7 @@ void demo() {
     else { // Stop: Distance <= 7cm
       analogWrite(ml, 0);
       analogWrite(mr, 0);
-      grab(); // Control Servo to grab object
+      //grab(); // Control Servo to grab object
     }
   }
 }
@@ -212,19 +221,19 @@ void demo() {
 int measure() {
   int i;
   for (i = 0; i < 2; i++) {
-    // Clears the trig
+    // Clear trig
     digitalWrite(trig, LOW);
     delayMicroseconds(2);
 
-    // Sets the trigPin on HIGH state for 10 micro seconds
-    digitalWrite(trigPin, HIGH);
+    // Set trig HIGH for 10 ms
+    digitalWrite(trig, HIGH);
     delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
+    digitalWrite(trig, LOW);
 
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    dur = pulseIn(echoPin, HIGH);
+    // Read echo and return travel time in ms
+    dur = pulseIn(echo, HIGH);
 
-    // Calculating the distance
+    // Calculate distance
     dist += dur*0.034/2;
   }
   dist = dist/i;
