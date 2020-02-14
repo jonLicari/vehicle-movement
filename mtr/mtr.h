@@ -16,12 +16,14 @@
   const int jx = A0; 
   const int jy = A1;
   const int md = A2; // Mode select
-  const int im = A3; // Object detect port
+  const int im = 10; // Object detect port
+  const int trig = 4;
+  const int echo = 2;
   
   // Motor PWM pin declaration
   const int ml = 3; // L motor
-  const int lfwd = 4; 
-  const int lbwd = 5; 
+  const int lfwd = 5; 
+  const int lbwd = 6; 
   const int mr = 9; // R motor
   const int rfwd = 8;
   const int rbwd = 7;
@@ -32,9 +34,10 @@
   int mode = 0;
 
   // Miscellaneous 
-  float op1; // 
+  float op1;
+  long dur;  
   unsigned long bgn, tot_time; // Start/ Stop time 
-  int old, state; // Mode select variable
+  int old, state, dist; 
   volatile bool img = false; // Object detect signal 
 
   // TX Variables
