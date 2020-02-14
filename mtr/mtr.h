@@ -20,11 +20,11 @@
   
   // Motor PWM pin declaration
   const int ml = 3; // L motor
-  const int lfwd = 2; 
-  const int lbwd = 4; 
-  const int mr = 6; // R motor
-  const int rfwd = 7;
-  const int rbwd = 8;
+  const int lfwd = 4; 
+  const int lbwd = 5; 
+  const int mr = 9; // R motor
+  const int rfwd = 8;
+  const int rbwd = 7;
 
   // Analog variables
   int joy_x = 0;
@@ -32,9 +32,10 @@
   int mode = 0;
 
   // Miscellaneous 
-  float op1, op2; // delete?
-  int old, state; // Flight mode select variable
-  bool img = false; // Object detect signal 
+  float op1; // 
+  unsigned long bgn, tot_time; // Start/ Stop time 
+  int old, state; // Mode select variable
+  volatile bool img = false; // Object detect signal 
 
   // TX Variables
   const int tx_led = 13;
