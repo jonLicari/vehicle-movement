@@ -16,9 +16,9 @@
   const int jx = A0; 
   const int jy = A1;
   const int md = A2; // Mode select
-  const int im = 10; // Object detect port
+  const int im = 2; // Object detect port
   const int trig = 4;
-  const int echo = 2;
+  const int echo = 10;
   
   // Motor PWM pin declaration
   const int ml = 3; // L motor
