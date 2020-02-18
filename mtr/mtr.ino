@@ -5,16 +5,21 @@
  */
 
 #include <VirtualWire.h>
+#include <Servo.h>
 #include "mtr.h"
 #include "arm.h"
 
 void setup() {
+  Servo sx, sy;
+  
   // Variable Initialization
   state = 3; // Default demo state
-  posx = 0; // Default sx position to 0
-  posy = 0; // Default sy position to 0
   img = false;
   grp = false;
+  sx.attach(x);
+  sy.attach(y);
+  posx = 0; // Default sx position to 0
+  posy = 0; // Default sy position to 0
   
   // Sensor Port Initialization
   pinMode(jx, INPUT);
@@ -241,6 +246,7 @@ void demo() {
       analogWrite(ml, 0);
       analogWrite(mr, 0);
       grab(); // See arm.h
+      //deliver(); // Delivers object to requester
     }
   }
   
