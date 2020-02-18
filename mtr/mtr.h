@@ -20,8 +20,8 @@
   const int trig = 4;
   const int echo = 10;
   const int grp_cnfm = 11; // Grip signal port
-  const int sx = // x-axis servo
-  const int sy = // y-axis servo
+  const int x = // x-axis servo pin
+  const int y = // y-axis servo pin
   
   // Motor PWM pin declaration
   const int ml = 3; // L motor
