@@ -6,7 +6,7 @@
 #ifndef mtr_h
 #define mtr_h
 
-  // Define the expected analog values for the Flight Mode Select button - dlete
+  // Define analog constants for the Mode Select debouncing
   #define exp0 1014 // 1k
   #define exp1 931 // 10k
   #define exp2 840 // 22k
@@ -19,6 +19,9 @@
   const int im = 2; // Object detect port
   const int trig = 4;
   const int echo = 10;
+  const int grp_cnfm = 11; // Grip signal port
+  const int sx = // x-axis servo
+  const int sy = // y-axis servo
   
   // Motor PWM pin declaration
   const int ml = 3; // L motor
@@ -27,6 +30,10 @@
   const int mr = 9; // R motor
   const int rfwd = 8;
   const int rbwd = 7;
+
+  // TX Variables
+  const int tx_led = 13;
+  const int tx = 12;
 
   // Analog variables
   int joy_x = 0;
@@ -37,12 +44,9 @@
   float op1;
   long dur;  
   unsigned long bgn, tot_time; // Start/ Stop time 
-  int old, state, dist; 
-  volatile bool img = false; // Object detect signal 
-
-  // TX Variables
-  const int tx_led = 13;
-  const int tx = 12;
+  int old, state, dist, posx, posy; 
+  volatile bool img; // Object detect signal 
+  volatile bool grp; // Grip detect signal
 
 struct Data_Packet {
   int x_dat;
