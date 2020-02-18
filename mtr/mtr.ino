@@ -18,6 +18,7 @@ void setup() {
   pinMode(im, INPUT_PULLUP);
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
+  pinMode(grp, INPUT);
 
   // Motor Port Initialization
   pinMode(ml, OUTPUT);
@@ -39,7 +40,8 @@ void setup() {
   pinMode(tx_led, OUTPUT);
 
   // Interrupt 
-  attachInterrupt(digitalPinToInterrupt(im), detect, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(im), detect, RISING);
+  attachInterrupt(digitalPinToInterrupt(grp), grip_detect, RISING);
 
   // Initialize Serial monitor
   Serial.begin(250000);
@@ -52,7 +54,7 @@ void loop() {
   mode = analogRead(md);
 
   // Only run state check if there has been a change in ANALOG voltage
-  // This only works if the ANALOG signal is consistent and steady
+  // Debouncing
   if (mode != old && mode != 0) { 
     // Determine state based on the analog voltage
     if (mode >= exp0*0.995 && mode <= exp0*1.005)
@@ -109,8 +111,10 @@ void loop() {
 
 void detect() {
   img = !img;
-  //Serial.println("ISR");  
-  //detachInterrupt(digitalPinToInterrupt(im));
+}
+
+void grip_detect() {
+  grip_cnfm = !grip_cnfm;
 }
 
 void send_data() {
