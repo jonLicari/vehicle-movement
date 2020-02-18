@@ -9,8 +9,12 @@
 #include "arm.h"
 
 void setup() {
-  
-  state = 3; // Initialize mode to 0 - Idle, 3 -demo
+  // Variable Initialization
+  state = 3; // Default demo state
+  posx = 0; // Default sx position to 0
+  posy = 0; // Default sy position to 0
+  img = false;
+  grp = false;
   
   // Sensor Port Initialization
   pinMode(jx, INPUT);
@@ -49,8 +53,7 @@ void setup() {
 }
 
 void loop() {
-  state = 3;
-
+  
   // Read in state variable
   mode = analogRead(md);
 
@@ -107,7 +110,7 @@ void loop() {
   //mtrSpeed(); 
 
   //send_data(); // test serial connect before wireless
-  delay(1000);
+  // delay(10); Remove unless required for performance
 }
 
 void detect() {
@@ -181,47 +184,6 @@ void slow() {
    }
 }
 
-void demo() {
-  /* Scan state has the vehicle turn in a slow 360 
-   *  camera is actively scanning for object 
-   *  once object is detected, jump to drive state
-   *  slow once in range of object
-   *  stop in range of claw
-   *  
-   */
-  int spd, d;
-  tot_time = 0;    
-    
-  while(img != false) {
-    Serial.println("true loop ");
-    Serial.print(img);
-    d = measure();
-    Serial.println("d = ");
-    Serial.println(d);
-    if (d > 20) { // Distance > 20cm from object
-      spd = 200;
-      analogWrite(ml, spd);
-      analogWrite(mr, spd);
-    }
-    else if (d > 8 && d < 20) { // Slow: 20cm > Distance > 8cm
-      spd = 50;
-      analogWrite(ml, spd);
-      analogWrite(mr, spd);
-    }
-    else { // Stop: Distance <= 7cm
-      analogWrite(ml, 0);
-      analogWrite(mr, 0);
-      grab(); // See arm.h
-    }
-  }
-  
-  // object not detected
-  Serial.println("false");
-  Serial.print(img);
-  analogWrite(ml, 140);
-  analogWrite(mr, 50);
-}
-
 int measure() {
   int i;
   for (i = 0; i < 2; i++) {
@@ -245,6 +207,47 @@ int measure() {
   Serial.print(dist);
 
   return(dist); 
+}
+
+void demo() {
+  /* Scan state has the vehicle turn in a slow 360 
+   *  camera is actively scanning for object 
+   *  once object is detected, jump to drive state
+   *  slow once in range of object
+   *  stop in range of claw
+   *  
+   */
+  int spd, d;
+  tot_time = 0;    
+    
+  while(img != false) {
+    Serial.println("true loop ");
+
+    d = measure();
+    Serial.println("d = ");
+    Serial.println(d);
+    
+    if (d > 20) { // Distance > 20cm from object
+      spd = 200;
+      analogWrite(ml, spd);
+      analogWrite(mr, spd);
+    }
+    else if (d > 8 && d < 20) { // Slow: 20cm > Distance > 8cm
+      spd = 50;
+      analogWrite(ml, spd);
+      analogWrite(mr, spd);
+    }
+    else { // Stop: Distance <= 7cm
+      analogWrite(ml, 0);
+      analogWrite(mr, 0);
+      grab(); // See arm.h
+    }
+  }
+  
+  // object not detected
+  Serial.println("false");
+  analogWrite(ml, 140);
+  analogWrite(mr, 50);
 }
 
 void rdVolt() { // Print values to serial monitor
