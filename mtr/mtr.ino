@@ -6,6 +6,7 @@
 
 #include <VirtualWire.h>
 #include "mtr.h"
+#include "arm.h"
 
 void setup() {
   
@@ -41,7 +42,7 @@ void setup() {
 
   // Interrupt 
   attachInterrupt(digitalPinToInterrupt(im), detect, RISING);
-  attachInterrupt(digitalPinToInterrupt(grp), grip_detect, RISING);
+  attachInterrupt(digitalPinToInterrupt(grp), grip_detect, CHANGE);
 
   // Initialize Serial monitor
   Serial.begin(250000);
@@ -189,16 +190,9 @@ void demo() {
    *  
    */
   int spd, d;
-   
-  if (img == false) {     // object not detected
-    Serial.println("false loop ");
-    Serial.print(img);
-
-    analogWrite(ml, 140);
-    analogWrite(mr, 50);
-    tot_time = 0;    
-  }
-  else {
+  tot_time = 0;    
+    
+  while(img != false) {
     Serial.println("true loop ");
     Serial.print(img);
     d = measure();
@@ -217,9 +211,15 @@ void demo() {
     else { // Stop: Distance <= 7cm
       analogWrite(ml, 0);
       analogWrite(mr, 0);
-      //grab(); // Control Servo to grab object
+      grab(); // See arm.h
     }
   }
+  
+  // object not detected
+  Serial.println("false");
+  Serial.print(img);
+  analogWrite(ml, 140);
+  analogWrite(mr, 50);
 }
 
 int measure() {
