@@ -214,16 +214,19 @@ int measure() {
   return(dist); 
 }
 
+void deliver(unsigned long time) {
+  // 180 degree turn
+  analogWrite(ml, 255);
+  analogWrite(mr, 200);
+  delay(2000);
+  
+  // Return
+  
+
 void demo() {
-  /* Scan state has the vehicle turn in a slow 360 
-   *  camera is actively scanning for object 
-   *  once object is detected, jump to drive state
-   *  slow once in range of object
-   *  stop in range of claw
-   *  
-   */
+
   int spd, d;
-  tot_time = 0;    
+  bgn = millis();
     
   while(img != false) {
     Serial.println("true loop ");
@@ -243,17 +246,20 @@ void demo() {
       analogWrite(mr, spd);
     }
     else { // Stop: Distance <= 7cm
+      tot_time = millis() - bgn;
       analogWrite(ml, 0);
       analogWrite(mr, 0);
       grab(); // See arm.h
-      //deliver(); // Delivers object to requester
+      deliver(tot_time); // Delivers object to requester
     }
   }
   
   // object not detected
-  Serial.println("false");
-  analogWrite(ml, 140);
-  analogWrite(mr, 50);
+  if (img != true) {
+    Serial.println("false");
+    analogWrite(ml, 140);
+    analogWrite(mr, 50);
+  }
 }
 
 void rdVolt() { // Print values to serial monitor
