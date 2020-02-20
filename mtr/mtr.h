@@ -16,6 +16,7 @@
   const int jx = A0; 
   const int jy = A1;
   const int md = A2; // Mode select
+  const int cntl = A3; // 0 - auto, 1 - manual 
   const int im = 2; // Object detect port
   const int trig = 4;
   const int echo = 10;
