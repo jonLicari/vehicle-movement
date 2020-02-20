@@ -58,7 +58,6 @@ void setup() {
 }
 
 void loop() {
-  
   // Read in state variable
   mode = analogRead(md);
 
@@ -221,10 +220,12 @@ void deliver(unsigned long time) {
   delay(2000);
   
   // Return
-  
+  analogWrite(ml, 200);
+  analogWrite(mr, 200);
+  delay(time); 
+} 
 
 void demo() {
-
   int spd, d;
   bgn = millis();
     
@@ -236,12 +237,12 @@ void demo() {
     Serial.println(d);
     
     if (d > 20) { // Distance > 20cm from object
-      spd = 200;
+      spd = 255;
       analogWrite(ml, spd);
       analogWrite(mr, spd);
     }
     else if (d > 8 && d < 20) { // Slow: 20cm > Distance > 8cm
-      spd = 50;
+      spd = 175;
       analogWrite(ml, spd);
       analogWrite(mr, spd);
     }
@@ -263,7 +264,6 @@ void demo() {
 }
 
 void rdVolt() { // Print values to serial monitor
-
   Serial.print("\nJoystick x-axis position {0,1023} = ");
   Serial.print(joy_x);
   Serial.print("\nJoystick y-axis position {0,1023} = ");
@@ -272,7 +272,6 @@ void rdVolt() { // Print values to serial monitor
 }
 
 void mtrSpeed() { // Prints motor speed to serial monitor
-    
   // Show rotor speed as a percentage of max speed
   Serial.print("\nMotor operating speed = ");
   op1 = (joy_y/255.0)*100.00; // FIX *****
