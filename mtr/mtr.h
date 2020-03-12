@@ -6,17 +6,9 @@
 #ifndef mtr_h
 #define mtr_h
 
-  // Define the expected analog values for the Flight Mode Select button - dlete
-  #define exp0 1014 // 1k
-  #define exp1 931 // 10k
-  #define exp2 840 // 22k
-  #define exp3 770 // 33k
+  #define ymax  45
 
   // Pin Assignments
-  const int jx = A0; 
-  const int jy = A1;
-  const int md = A2; // Mode select
-  const int cntl = A3; // 0 - auto, 1 - manual
   const int im = 2; // Object detect port
   const int trig = 4;
   const int echo = 10;
@@ -30,29 +22,27 @@
   const int rfwd = 8;
   const int rbwd = 7;
 
-  // Analog variables
-  int joy_x = 0;
-  int joy_y = 0;
-  int mode = 0;
-
   // Miscellaneous 
   float op1;
   long dur;  
   unsigned long bgn, tot_time; // Start/ Stop time 
-  int old, state, dist, posx, posy; 
+  int select, dist, posx, posy; 
   volatile int img; // Object detect signal 
   volatile int grp; // Grip confirm variable
+  int joy_x = 0;
+  int joy_y = 0;
 
-  // TX Variables
-  const int tx_led = 13;
-  const int tx = 12;
+  // Rx Declarations
+  const int rx = 12;
+  const int rx_led = 13;
+  int cntl; // Operating mode
 
-struct Data_Packet {
-  int x_dat;
-  int y_dat;
-  int state;
-};
+  struct Data_Packet {
+    int x_dat;
+    int y_dat;
+    int state;
+  };
 
-Data_Packet data;
+  Data_Packet data;
 
 #endif
