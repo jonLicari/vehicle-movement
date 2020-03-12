@@ -3,12 +3,14 @@
  *  mtr.ino
  *  Vehicle mode selection, sensor assisted navigation, wireless control
  */
-#include <Servo.h> 
+#include <Servo.h>
+#include <VirtualWire.h>
+#include <VirtualWire_Config.h> 
 #include "mtr.h"
 #include "manual.h"
 
-#define ymax  45
 Servo sx, sy;
+
 void setup() {
   // Servo Initialization
   sx.attach(11);
@@ -19,14 +21,10 @@ void setup() {
   sy.write(posy);    
   
   // Variable Initialization
-  state = 3; // Default demo state
   img = false;
   grp = false;
 
   // Sensor Port Initialization
-  pinMode(jx, INPUT);
-  pinMode(jy, INPUT);
-  pinMode(md, INPUT);
   pinMode(im, INPUT_PULLUP);
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
@@ -46,11 +44,12 @@ void setup() {
   digitalWrite(rfwd, HIGH);
   digitalWrite(rfwd, LOW);
   
-  // Tx initialization
- // vw_set_tx_pin(tx); // Set transmit pin
- // vw_setup(2000); // Bits per second
- // pinMode(tx_led, OUTPUT);
-
+  // Rx Initialization
+  vw_set_rx_pin(rx);  // Set receive pin
+  vw_setup(2000);
+  vw_rx_start();  // Start running the receiver PLL 
+  pinMode(rx_led, OUTPUT);
+  
   // Interrupt 
   attachInterrupt(digitalPinToInterrupt(im), detect, RISING);
   attachInterrupt(digitalPinToInterrupt(grp), grip_detect, CHANGE);
@@ -60,14 +59,79 @@ void setup() {
 }
 
 void loop() {
-  if (analogRead(cntl) != 1) { // auto
-    demo();
-  }
-  else {
-    manual();
-  }
-  //send_data(); // test serial connect before wireless
-  // delay(10); Remove unless required for performance
+
+  get_data(); // Start receiving the wireless data
+
+   // Switch case for flight mode selection
+  switch (select) {
+     case 0:
+      drive();
+      //Serial.println("Enter Drive State");
+      break;
+
+     case 1:
+      slow();
+      //Serial.println("Enter Precision Movement State");
+      break;
+
+     case 2:
+      manual_grab();
+      //Serial.println("Enter Robotic Arm State");
+      break;
+
+     case 3:
+      demo();
+      //Serial.println("Enter Demo State");
+      break;
+
+     default: // In the event of mode select failure, vehicle maintains its position
+      idle();
+      //Serial.println("Enter Default(Idle) State");
+      break;
+  }  
+}
+
+void get_data() {
+  uint8_t buf[VW_MAX_MESSAGE_LEN]; // Array where message is copied
+  uint8_t buflen = VW_MAX_MESSAGE_LEN; 
+  // ^^^ should have arrays max size upon input,return#of bytes actually copied
+  // ^^^ function itself returns true if the message was verified correct, 
+  // ^^^ or false if a message was received but appears to have been corrupted.
+
+    if (vw_get_message(buf, &buflen)) // Non-blocking
+    {
+      //int i;
+
+      digitalWrite(13, true); // Flash a light to show received good message
+      // Message with a good checksum received, dump it.
+      Serial.print("Got: ");
+  
+      //for (i = 0; i < buflen; i++)
+      //{
+       //   Serial.print(buf[i], HEX);
+         // Serial.print(" ");
+      //}
+      data.x_dat = buf[0];
+      data.y_dat = buf[2];
+      data.state = buf[4];
+      Serial.print("X Pos = ");
+      Serial.println(data.x_dat);
+      Serial.print("Y Pos = ");
+      Serial.println(data.y_dat);
+      Serial.print("Mode = ");
+      Serial.println(data.state);
+      
+      digitalWrite(13, false);
+    }
+
+    set_data();
+}
+
+void set_data() {
+  
+  select = data.state;
+  joy_x = data.x_dat;
+  joy_y = data.y_dat;
 }
 
 void detect() {
@@ -77,21 +141,6 @@ void detect() {
 void grip_detect() {
   grp = !grp;
 }
-
-/*void send_data() {
-  digitalWrite(tx_led, HIGH); // Begin transmit
-  set_data(); // Substitute for reading values
-  vw_send((uint8_t *)&data, sizeof(data));
-  vw_wait_tx(); // Wait until the whole message sends
-  digitalWrite(tx_led, LOW);
-  // delay(5);
-}
-
-void set_data() {
-  data.x_dat = joy_x;
-  data.y_dat = joy_y;
-  data.state = state;
-}*/
 
 int measure() {
   int i;
