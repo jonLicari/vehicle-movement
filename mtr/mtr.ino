@@ -3,25 +3,26 @@
  *  mtr.ino
  *  Vehicle mode selection, sensor assisted navigation, wireless control
  */
-
-#include <VirtualWire.h>
-#include <Servo.h>
+#include <Servo.h> 
 #include "mtr.h"
-#include "arm.h"
 #include "manual.h"
 
+#define ymax  45
+Servo sx, sy;
 void setup() {
-  Servo sx, sy;
+  // Servo Initialization
+  sx.attach(11);
+  sy.attach(12);
+  posx = 0; // Default sx position to 0
+  posy = 0; // Default sy position to 0
+  sx.write(posx);
+  sy.write(posy);    
   
   // Variable Initialization
   state = 3; // Default demo state
   img = false;
   grp = false;
-  sx.attach(x);
-  sy.attach(y);
-  posx = 0; // Default sx position to 0
-  posy = 0; // Default sy position to 0
-  
+
   // Sensor Port Initialization
   pinMode(jx, INPUT);
   pinMode(jy, INPUT);
@@ -46,9 +47,9 @@ void setup() {
   digitalWrite(rfwd, LOW);
   
   // Tx initialization
-  vw_set_tx_pin(tx); // Set transmit pin
-  vw_setup(2000); // Bits per second
-  pinMode(tx_led, OUTPUT);
+ // vw_set_tx_pin(tx); // Set transmit pin
+ // vw_setup(2000); // Bits per second
+ // pinMode(tx_led, OUTPUT);
 
   // Interrupt 
   attachInterrupt(digitalPinToInterrupt(im), detect, RISING);
@@ -74,10 +75,10 @@ void detect() {
 }
 
 void grip_detect() {
-  grip_cnfm = !grip_cnfm;
+  grp = !grp;
 }
 
-void send_data() {
+/*void send_data() {
   digitalWrite(tx_led, HIGH); // Begin transmit
   set_data(); // Substitute for reading values
   vw_send((uint8_t *)&data, sizeof(data));
@@ -90,7 +91,7 @@ void set_data() {
   data.x_dat = joy_x;
   data.y_dat = joy_y;
   data.state = state;
-}
+}*/
 
 int measure() {
   int i;
@@ -128,6 +129,19 @@ void deliver(unsigned long time) {
   analogWrite(mr, 200);
   delay(time); 
 } 
+
+void grab() {
+  // sx operation
+  while(grp != true) { // or digitalRead(pin12) != HIGH
+    sx.write(posx);
+    posx++;
+  }
+  
+  // sy operation
+  for (posy = 0; posy < ymax; posy++) {
+    sy.write(posy);
+  }
+}
 
 void demo() {
   int spd, d;
