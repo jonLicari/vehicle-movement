@@ -4,8 +4,6 @@
  *  Vehicle mode selection, sensor assisted navigation, wireless control
  */
 #include <Servo.h>
-#include <VirtualWire.h>
-#include <VirtualWire_Config.h> 
 #include "mtr.h"
 #include "manual.h"
 
@@ -44,24 +42,34 @@ void setup() {
   digitalWrite(rfwd, HIGH);
   digitalWrite(rfwd, LOW);
   
-  // Rx Initialization
-  vw_set_rx_pin(rx);  // Set receive pin
-  vw_setup(2000);
-  vw_rx_start();  // Start running the receiver PLL 
-  pinMode(rx_led, OUTPUT);
-  
   // Interrupt 
   attachInterrupt(digitalPinToInterrupt(im), detect, RISING);
   attachInterrupt(digitalPinToInterrupt(grp), grip_detect, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(face), face_detect, RISING);
 
   // Initialize Serial monitor
-  Serial.begin(250000);
+  Serial.begin(115200);
 }
 
 void loop() {
 
-  get_data(); // Start receiving the wireless data
-
+  //get_data(); // Start receiving the wireless data
+  if (Serial.available()) {
+    delay(1000);
+    while(Serial.available()) {
+      select = Serial.read();
+      joy_x = Serial.read();
+      joy_y = Serial.read();
+    }
+  }
+  Serial.print("\nSelect = ");
+  Serial.print(select);
+  Serial.print("\nX = ");
+  Serial.print(joy_x);
+  Serial.print("\nY = ");
+  Serial.print(joy_y);
+  delay(1000);
+  
    // Switch case for flight mode selection
   switch (select) {
      case 0:
@@ -91,55 +99,13 @@ void loop() {
   }  
 }
 
-void get_data() {
-  uint8_t buf[VW_MAX_MESSAGE_LEN]; // Array where message is copied
-  uint8_t buflen = VW_MAX_MESSAGE_LEN; 
-  // ^^^ should have arrays max size upon input,return#of bytes actually copied
-  // ^^^ function itself returns true if the message was verified correct, 
-  // ^^^ or false if a message was received but appears to have been corrupted.
-
-    if (vw_get_message(buf, &buflen)) // Non-blocking
-    {
-      //int i;
-
-      digitalWrite(13, true); // Flash a light to show received good message
-      // Message with a good checksum received, dump it.
-      Serial.print("Got: ");
-  
-      //for (i = 0; i < buflen; i++)
-      //{
-       //   Serial.print(buf[i], HEX);
-         // Serial.print(" ");
-      //}
-      data.x_dat = buf[0];
-      data.y_dat = buf[2];
-      data.state = buf[4];
-      Serial.print("X Pos = ");
-      Serial.println(data.x_dat);
-      Serial.print("Y Pos = ");
-      Serial.println(data.y_dat);
-      Serial.print("Mode = ");
-      Serial.println(data.state);
-      
-      digitalWrite(13, false);
-    }
-
-    set_data();
-}
-
-void set_data() {
-  
-  select = data.state;
-  joy_x = data.x_dat;
-  joy_y = data.y_dat;
-}
-
 void detect() {
   img = !img;
 }
 
 void grip_detect() {
   grp = !grp;
+  // Send the pi grip detect signal
 }
 
 int measure() {
