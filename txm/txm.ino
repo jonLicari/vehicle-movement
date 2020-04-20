@@ -60,7 +60,7 @@ void loop() {
   joy_x = map(joy_x, 0, 1023, 0, 255);
   joy_y = map(joy_y, 0, 1023, 0, 255);
 
-  //rdVolt(); // Read mapped voltage of analog input and operating mode
+  rdVolt(); // Read mapped voltage of analog input and operating mode
 
   // Switch case for  mode selection
   switch (select) {
@@ -107,8 +107,8 @@ void loop() {
 
   send_data();
   
-  // Delay to complete computation
-  delay(10);  
+  // Delay for reading serial monitor only
+  delay(1000);  
 }
 
 void send_data() {
@@ -127,7 +127,7 @@ void set_data() {
 
 void rdVolt() { // Print the values to the serial monitor
 
-  Serial.print("X Position = ");
+  Serial.print("\nX Position = ");
   Serial.print(joy_x);
 
   Serial.print("\nY Position = ");
