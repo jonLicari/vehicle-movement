@@ -11,3 +11,6 @@ Turn functions that execute for a predetermined amount of time lack overall mobi
 and give the vehicle a two dimensional feel. By using time-based functions, the vehicle
 can achieve much better angles of movement by executing the turn function for varying
 amounts of time.
+
+### Update:
+Project utilized Arduino Uno network for implementation.
