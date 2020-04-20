@@ -32,17 +32,4 @@
   int joy_x = 0;
   int joy_y = 0;
 
-  // Rx Declarations
-  const int rx = 12;
-  const int rx_led = 13;
-  int cntl; // Operating mode
-
-  struct Data_Packet {
-    int x_dat;
-    int y_dat;
-    int state;
-  };
-
-  Data_Packet data;
-
 #endif
