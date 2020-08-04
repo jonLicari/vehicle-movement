@@ -14,3 +14,6 @@ amounts of time.
 
 ### Update:
 Project utilized Arduino Uno network for implementation.
+See txm for transmitter module, 
+See rxm for receiver module,
+See mtr for main robot functionality.
